@@ -4,11 +4,12 @@
 ##
 ## GENERAL SETUP
 #
-SRC_DIRS  = ./src/fv1 ./src/vm ./src/misc ./src/fv1/debug
+SRC_DIRS  = ./src/fv1 ./src/misc ./src/fv1/debug
 BUILD_DIR = ./build
 
 INCLUDES = ./src/
-DEFINES  += FV1_DELAY_I32
+
+CPPSTD ?= c++17
 
 CPPFLAGS += -g -O3
 CPPFLAGS += -Wall -Wextra -Wpedantic -Wshadow -Werror -Wno-missing-braces
@@ -19,7 +20,7 @@ CPPFLAGS += -Wframe-larger-than=2048 # somewhat arbitrary
 CPPFLAGS += $(addprefix -I, $(INCLUDES))
 CPPFLAGS += $(addprefix -D, $(DEFINES))
 CPPFLAGS += -MMD -MP
-CPPFLAGS += -std=c++17
+CPPFLAGS += -std=$(CPPSTD)
 LIBS+=
 LDFLAGS+=
 
@@ -114,6 +115,30 @@ tools: $(TOOLS)
 
 $(foreach tool, $(TOOLS), $(eval $(call tool-target, $(tool))))
 
+
+CPPCHECK_FLAGS += --enable=all
+CPPCHECK_FLAGS += -inconclusives
+CPPCHECK_FLAGS += --std=$(CPPSTD)
+CPPCHECK_FLAGS += --quiet
+CPPCHECK_FLAGS += --suppress=missingIncludeSystem
+CPPCHECK_FLAGS += --error-exitcode=1
+ifdef VERBOSE
+CPPCHECK_FLAGS += -v
+else
+CPPCHECK_FLAGS += --quiet
+endif
+# CPPCHECK_FLAGS += --check-config
+
+CPPCHECK_SRC_DIRS = ./src ./tools
+CPPCHECK_INCLUDES = ./src
+
+.PHONY: check
+check:
+	$(Q)cppcheck $(CPPCHECK_SRC_DIRS) $(addprefix -I,$(CPPCHECK_INCLUDES)) $(CPPCHECK_FLAGS)
+
+###
+## BUILD RULES
+#
 $(BUILD_DIR):
 	@mkdir -p $@
 

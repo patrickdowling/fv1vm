@@ -9,6 +9,8 @@ Other goals (which are sometimes orthogonal to the main one...)
 - Experiment with C++ features
 - Do things "differently" than I usually would (e.g. operator overloading for fixed-point math)
 
+![CI Badge](https://github.com/patrickdowling/fv1vm/actions/workflows/make.yml/badge.svg)
+
 ## Structure
 There are three main layers:
 - Decoding binary instructions into an internal representation. No, it doesn't read .asm files, only banks or compiled programs.

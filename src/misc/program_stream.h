@@ -48,7 +48,7 @@ protected:
 template <BSWAP bswap>
 class BufferStream : public ProgramStream {
 public:
-  BufferStream(const char *buffer)
+  explicit BufferStream(const char *buffer)
       : ProgramStream(bswap), buffer_{buffer}, head_{buffer}, tail_{buffer + sizeof(uint32_t) * 128}
   {}
 

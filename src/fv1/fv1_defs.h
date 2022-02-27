@@ -25,7 +25,6 @@
 #include "core/core_type_tag.h"
 
 namespace fv1 {
-
 static constexpr int32_t kMaxInstructionCount = 128;
 static constexpr int32_t kDelayMemorySize = 32768;
 static constexpr int32_t kNumPots = 3;
@@ -37,13 +36,13 @@ static_assert(kDelayAddrMask == kDelayMemorySize - 1);
 using BinaryProgramBuffer = std::array<char, sizeof(uint32_t) * kMaxInstructionCount>;
 static_assert(512 == sizeof(BinaryProgramBuffer));
 
-FIXED_POINT(S4F6, 11, 6);
-FIXED_POINT(SF10, 11, 10);
-FIXED_POINT(S1F9, 11, 9);
-FIXED_POINT_S(S1F14, "S114", 16, 14);
-FIXED_POINT(I16, 16, 15);
-FIXED_POINT(SF15, 16, 15);
-FIXED_POINT(SF23, 24, 23);
+FIXED_POINT_TYPE(S4F6, "S4F6"_TTU, 11, 6);
+FIXED_POINT_TYPE(SF10, "SF10"_TTU, 11, 10);
+FIXED_POINT_TYPE(S1F9, "S1F9"_TTU, 11, 9);
+FIXED_POINT_TYPE(S1F14, "S114"_TTU, 16, 14);
+FIXED_POINT_TYPE(I16, "I16"_TTU, 16, 15);
+FIXED_POINT_TYPE(SF15, "SF15"_TTU, 16, 15);
+FIXED_POINT_TYPE(SF23, "SF23"_TTU, 24, 23);
 
 }  // namespace fv1
 

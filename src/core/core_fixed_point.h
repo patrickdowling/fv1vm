@@ -25,13 +25,20 @@
 
 namespace core {
 
-#define FPS_(x, y) x##y
-#define FPS(x) FPS_(#x, _TTU)
-#define FIXED_POINT(x, bits, frac) \
-  using x = core::FixedPoint<core::FixedPointTraits<FPS(x), bits, frac>>
-
-#define FIXED_POINT_S(x, s, bits, frac) \
-  using x = core::FixedPoint<core::FixedPointTraits<FPS_(s, _TTU), bits, frac>>
+// NOTE cppcheck doesn't like this use of ## here
+// It's a bit of a rabbit hole to figure out but it's noted in simplecpp issues:
+// https://github.com/danmar/simplecpp/issues/168
+//
+// #define FP_TYPE_TAG(x, y) x##y
+// #define FIXED_POINT_TYPE(x, bits, frac) using x =
+// core::FixedPoint<core::FixedPointTraits<FP_TYPE_TAG(#x, _TTU), bits, frac>>
+//
+// #define FIXED_POINT_TYPE_S(x, s, bits, frac) using x =
+// core::FixedPoint<core::FixedPointTraits<FP_TYPE_TAG(s, _TTU), bits, frac>>
+//
+// So this is the somewhat longer form version
+#define FIXED_POINT_TYPE(type, type_tag, bits, frac) \
+  using type = core::FixedPoint<core::FixedPointTraits<type_tag, bits, frac>>
 
 // Common ancestor for fixed point implementations (e.g. for enable_if matching)
 // NOTE putting ::value in here seems logical enough, but apparenty slower?

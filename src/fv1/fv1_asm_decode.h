@@ -75,7 +75,7 @@ struct IntOperand {
 template <typename T, char id>
 struct FixedOperand {
   static constexpr char ID = id;
-  static constexpr TypedOperand Read(uint32_t value) { return core::DecodeFixedPoint<T>(value); }
+  static constexpr TypedOperand Read(uint32_t value) { return TypedOperand{core::DecodeFixedPoint<T>(value)}; }
 
   static constexpr bool valid_width(size_t w) { return T::BITS == w; }
 };
@@ -132,7 +132,7 @@ struct OpcodeMatcher {
 
 // The structs aren't _really_ meant to be instantiated.
 template <typename T, typename... operand_types>
-struct Instruction {
+struct InstructionImpl {
   static constexpr size_t kNumOperands = sizeof...(operand_types);
   static_assert(kNumOperands <= 4);
 
@@ -191,7 +191,7 @@ private:
 #define CAT(a, b) a##b
 
 #define FV1_INSTRUCTION(name, bitfields, ...)                                          \
-  struct name : public Instruction<name, __VA_ARGS__> {                                \
+  struct name : public InstructionImpl<name, __VA_ARGS__> {                            \
     static constexpr OPCODE kOpcode = OPCODE::name;                                    \
     static constexpr std::string_view STRING = bitfields;                              \
     static_assert(STRING.size() == 32);                                                \

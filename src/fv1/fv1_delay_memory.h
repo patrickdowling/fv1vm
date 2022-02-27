@@ -35,7 +35,7 @@ public:
   using storage_type = typename Traits::storage_type;
   using buffer_type = typename std::array<typename Traits::storage_type, kDelayMemorySize>;
 
-  DelayMemory(buffer_type &buffer) : buffer_{buffer} {}
+  explicit DelayMemory(buffer_type &buffer) : buffer_{buffer} {}
 
   void Reset()
   {
@@ -74,7 +74,7 @@ public:
 
 private:
   buffer_type &buffer_;
-  int32_t cursor_ = 0;
+  int32_t cursor_{0};
   value_type last_read_{0};
 
   inline storage_type at(int32_t i) const

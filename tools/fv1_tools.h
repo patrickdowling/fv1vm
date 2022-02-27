@@ -66,7 +66,7 @@ public:
   }
 
 private:
-  char buffer_[fv1::kDervishBankSize];
+  char buffer_[fv1::kDervishBankSize] = {0};
   size_t length_ = 0;
 };
 
