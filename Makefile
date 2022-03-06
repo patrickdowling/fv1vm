@@ -56,7 +56,7 @@ TEST_ASM_DST = $(BUILD_DIR)/tests
 ###
 ## TOOLS
 #
-TOOLS = fv1_dump
+TOOLS = fv1_dump fv1_wav
 TOOL_SRC_DIR = ./tools
 ALL_TOOL_SRCS += $(wildcard $(patsubst %,%/*.cc,$(TOOL_SRC_DIR)))
 ALL_TOOL_OBJS += $(patsubst %,$(BUILD_DIR)/%,$(notdir $(ALL_TOOL_SRCS:.cc=.o)))
@@ -85,10 +85,10 @@ ECHO := @echo
 endif
 
 .PHONY: all
-all: runtests tools
+all: tests tools
 
 .PHONY: clean
-clean: clean_tests
+clean: clean_tests clean_wavs
 	@$(RM) -f $(BUILD_DIR)/*
 
 .PHONY: tests
@@ -115,7 +115,8 @@ tools: $(TOOLS)
 
 $(foreach tool, $(TOOLS), $(eval $(call tool-target, $(tool))))
 
-
+# cppcheck
+CPPCHECK ?= cppcheck
 CPPCHECK_FLAGS += --enable=all
 CPPCHECK_FLAGS += -inconclusives
 CPPCHECK_FLAGS += --std=$(CPPSTD)
@@ -134,7 +135,18 @@ CPPCHECK_INCLUDES = ./src
 
 .PHONY: check
 check:
-	$(Q)cppcheck $(CPPCHECK_SRC_DIRS) $(addprefix -I,$(CPPCHECK_INCLUDES)) $(CPPCHECK_FLAGS)
+	$(Q)$(CPPCHECK) $(CPPCHECK_SRC_DIRS) $(addprefix -I,$(CPPCHECK_INCLUDES)) $(CPPCHECK_FLAGS)
+
+# WAV generation in external script
+WAV_DIR = $(BUILD_DIR)/wav
+
+.PHONY: wavs
+wavs: tools
+	@./scripts/makewavs.sh
+
+.PHONY: clean_wavs
+clean_wavs:
+	@$(RM) -rf $(WAV_DIR)
 
 ###
 ## BUILD RULES
@@ -142,15 +154,12 @@ check:
 $(BUILD_DIR):
 	@mkdir -p $@
 
-$(TEST_ASM_DST):
-
 $(BUILD_DIR)/gtest-all.o: $(GTEST_SRCS)
 	$(ECHO) "CC $<..."
 	$(Q)$(CXX) -I$(GTEST_DIR) -I$(GTEST_DIR)/include $(CPPFLAGS) \
 		-Wframe-larger-than=32768 -Wno-conversion \
 		-c $(GTEST_DIR)/src/gtest-all.cc \
 		-o $@
-
 .SUFFIXES:
 $(BUILD_DIR)/%.o: %.cc
 	$(ECHO) "CC $<..."
@@ -161,4 +170,6 @@ $(TEST_ASM_DST)/%.bin: ./test/asm/%.asm
 	@echo "FV1 $<..."
 	@$(ASFV1) -b -q $< $@
 
+ifneq ($(MAKECMDGOALS),clean)
 -include $(DEPS)
+endif

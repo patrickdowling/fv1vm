@@ -32,25 +32,28 @@
   if (options.verbose) INFO(__VA_ARGS__)
 
 static struct option long_opts[] = {
-    {"file", required_argument, nullptr, 'f'},
-    {"help", no_argument, nullptr, 'h'},
-    {"program", required_argument, nullptr, 'p'},
-    {"verbose", no_argument, nullptr, 'v'},
-    {nullptr, 0, nullptr, 0},
+    {"file", required_argument, nullptr, 'f'}, {"help", no_argument, nullptr, 'h'},
+    {"nodump", no_argument, nullptr, 'n'},     {"program", required_argument, nullptr, 'p'},
+    {"verbose", no_argument, nullptr, 'v'},    {nullptr, 0, nullptr, 0},
 };
 
-static const char *short_opts = "f:hp:v";
+static const char *short_opts = "f:hnp:v";
 
-static void Usage() {
-  printf("fv1_dump options <filename or stdin>: Disasemble binary file and print instruction/opcodes\n");
+static void Usage()
+{
+  printf(
+      "fv1_dump options <filename or stdin>: Disasemble binary file and print "
+      "instruction/opcodes\n");
   printf(" --file\t-f\tName of bank or binary file to read. If not specified, read from stdin\n");
   printf(" --help\t-h\tShow this message\n");
+  printf(" --nodump\t-n\tOnly print program info if available\n");
   printf(" --program\t-p\tIf source is a banke file, program in bank to decode (0-7)\n");
   printf(" --verbose\t-v\tMore output\n");
 }
 
 static struct {
   std::string file = "";
+  bool nodump = false;
   int program = 0;
   bool verbose = false;
 } options;
@@ -63,6 +66,7 @@ bool ParseCommandLine(int argc, char **argv)
     switch (ch) {
       case 'f': options.file = optarg; break;
       case 'h': return false;
+      case 'n': options.nodump = true; break;
       case 'p': options.program = atoi(optarg); break;
       case 'v': options.verbose = true; break;
       case '?': return false;
@@ -128,13 +132,15 @@ int main(int argc, char **argv)
   // If available, the program description is tacked on the end of the buffer
   fv1tools::print_program_info(binary_file.get_bank_info(), options.program);
 
-  auto program = binary_file.program(options.program);
-  if (!program) {
-    ERR("Invalid program index %d", options.program);
-    return EXIT_FAILURE;
-  }
+  if (!options.nodump) {
+    auto program = binary_file.program(options.program);
+    if (!program) {
+      ERR("Invalid program index %d", options.program);
+      return EXIT_FAILURE;
+    }
 
-  disassemble(program);
+    disassemble(program);
+  }
 
   return EXIT_SUCCESS;
 }

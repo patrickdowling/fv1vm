@@ -25,7 +25,19 @@ jobs:
       run: make -j4 tests tools
 
     - name: run tests
-      run: ./build/fv1_tests
+      run: make runtests
 
-    - name: run tools
-      run: ./build/fv1_dump -f ./build/tests/test_nop.bin
+    - name: generate test wavs
+      run: make wavs
+
+    - name: run other tools
+      run: |
+        ./build/fv1_dump -f ./build/tests/test_nop.bin
+        for i in $(seq 0 7) ; do ./build/fv1_dump -f ./banks/wav_tests/build/wav_tests.bank -p $i -n ; done
+
+    - name: copy artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: fv1vm-testwavs
+        path: |
+          ./build/wav/*.wav
