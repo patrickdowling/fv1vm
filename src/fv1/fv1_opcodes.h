@@ -63,6 +63,7 @@ enum class OPCODE : uint8_t {
   UNKNOWN,
 };
 static constexpr size_t kNumRealOpcodes = static_cast<size_t>(OPCODE::REAL_OPCODES_LAST);
+static constexpr size_t kOpcodeMax = 0x1f;
 static constexpr size_t kNumOpcodes = static_cast<size_t>(OPCODE::UNKNOWN) + 1;
 static constexpr size_t kNumSecondaryOpcodes = 2 /*WLDS/R*/ + 3 /*CHO_*/;
 

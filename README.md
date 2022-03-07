@@ -45,6 +45,13 @@ E.g. `Instruction::DecodeOperand` (which builds the code to extract a field from
 - The results can then be simulated/checked by loading the same program on both hardware (hello Dervish!) and in the unit test.
 - For other things, there's a tool to generate a .WAV file from a program (useful for LFO checks).
 
+## VM
+- The version here is just the tip of the iceberg.
+- Things like JIT or even emitting ARM assembly snippets for the individual opcodes are "on the list".
+- Instead of the VM bytecode operating on the FV1 instructions, we could break each individual instruction down further into the individual ops (load, store, mac, etc.).
+- This would be fun but seems like that would a) add more overhead -- but b) also yield more opportunity to optimize the bytecode (e.g. to merge LFO common access patterns).
+
 ## Random Notes
 - Sure, an F7 or H7 would be faster and has more memory. But where's the fun in that?
 - A different approach would be to disassemble the FV-1 opcodes and generate C++ (or, just ARM assembler). That's "on the list" but the original goal was just to use existing banks.
+- The instruction decoder table can, with some effort, but made constexpr so the `Register` functions "go away".

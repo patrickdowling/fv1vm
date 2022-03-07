@@ -71,7 +71,7 @@ static const char* const mnemonics[(int)OPCODE::UNKNOWN + 1] = {
     "cho rda sin",
     "jmp",
     "nop",
-    "????",
+    "UNKNOWN",
 };
 
 const char* to_string(OPCODE opcode)

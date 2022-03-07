@@ -180,7 +180,7 @@ private:
     DecoderFunction decoder_fn = nullptr;
   };
 
-  static std::array<TableEntry, kNumRealOpcodes> instruction_table_;
+  static std::array<TableEntry, kOpcodeMax> instruction_table_;
   static std::array<TableEntry, kNumSecondaryOpcodes> secondary_table_;
 
   static constexpr uint8_t table_index(uint32_t value) { return value & 0x1f; }
@@ -201,7 +201,7 @@ private:
   InstructionDecoder::Registrar<name> CAT(registrar_, name)
 
 #define FV1_INSTRUCTIONS_BEGIN()                                              \
-  /*static*/ std::array<InstructionDecoder::TableEntry, kNumRealOpcodes>      \
+  /*static*/ std::array<InstructionDecoder::TableEntry, kOpcodeMax>           \
       InstructionDecoder::instruction_table_;                                 \
   /*static*/ std::array<InstructionDecoder::TableEntry, kNumSecondaryOpcodes> \
       InstructionDecoder::secondary_table_;
