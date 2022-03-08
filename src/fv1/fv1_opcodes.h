@@ -65,7 +65,7 @@ enum class OPCODE : uint8_t {
 static constexpr size_t kNumRealOpcodes = static_cast<size_t>(OPCODE::REAL_OPCODES_LAST);
 static constexpr size_t kOpcodeMax = 0x1f;
 static constexpr size_t kNumOpcodes = static_cast<size_t>(OPCODE::UNKNOWN) + 1;
-static constexpr size_t kNumSecondaryOpcodes = 2 /*WLDS/R*/ + 3 /*CHO_*/;
+static constexpr size_t kNumSecondaryOpcodes = 1 /*WLDS/R*/ + 2 /*CHO_*/;
 
 enum SKP_FLAGS : int32_t {
   NEG = 0x01,  // If ACC is negative

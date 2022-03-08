@@ -34,7 +34,7 @@
 // size matches.
 //
 // Each instruction generates a ::Decode function, and there's a mapping from opcode -> Decode.
-// This mapping is has two layers to cater for ambiguous opcodes
+// This mapping is has two layers to cater for ambiguous opcodes.
 //
 // NOTE ARM has extra instructions to extract bits from registers
 
@@ -75,7 +75,10 @@ struct IntOperand {
 template <typename T, char id>
 struct FixedOperand {
   static constexpr char ID = id;
-  static constexpr TypedOperand Read(uint32_t value) { return TypedOperand{core::DecodeFixedPoint<T>(value)}; }
+  static constexpr TypedOperand Read(uint32_t value)
+  {
+    return TypedOperand{core::DecodeFixedPoint<T>(value)};
+  }
 
   static constexpr bool valid_width(size_t w) { return T::BITS == w; }
 };
@@ -156,57 +159,15 @@ struct InstructionImpl {
 // but have different operand layouts. These are identifiable by the top two bits which we can use
 // as a secondary index.
 //
-// The secondary table isn't sorted, we just brute force it; there's only 3 entries anyway.
+// With some additional hoops the actual lookup table becomes constexpr. The downside is that we
+// have to list the instructions twice. We can _maybe_ get around that but passing any type of
+// string as a template parameter is hard/weird.
 //
+// The actual table implementation details aren't really needed here so they are in the .cc file.
 class InstructionDecoder {
 public:
   static DecodedInstruction Decode(uint32_t instruction);
-
-  template <typename T>
-  static void Register()
-  {
-    Register(T::kOpcodeMatcher, &T::Decode);
-  }
-
-  template <typename T>
-  struct Registrar {
-    Registrar() { Register<T>(); }
-  };
-
-private:
-  using DecoderFunction = DecodedInstruction (*)(uint32_t);
-  struct TableEntry {
-    OpcodeMatcher matcher = {};
-    DecoderFunction decoder_fn = nullptr;
-  };
-
-  static std::array<TableEntry, kOpcodeMax> instruction_table_;
-  static std::array<TableEntry, kNumSecondaryOpcodes> secondary_table_;
-
-  static constexpr uint8_t table_index(uint32_t value) { return value & 0x1f; }
-
-  static void Register(const OpcodeMatcher &matcher, DecoderFunction fn);
 };
-
-#define CAT(a, b) a##b
-
-#define FV1_INSTRUCTION(name, bitfields, ...)                                          \
-  struct name : public InstructionImpl<name, __VA_ARGS__> {                            \
-    static constexpr OPCODE kOpcode = OPCODE::name;                                    \
-    static constexpr std::string_view STRING = bitfields;                              \
-    static_assert(STRING.size() == 32);                                                \
-    static constexpr OpcodeMatcher kOpcodeMatcher = OpcodeMatcher::FromString<name>(); \
-    static_assert((kOpcodeMatcher.mask & 0x1f) == 0x1f);                               \
-  };                                                                                   \
-  InstructionDecoder::Registrar<name> CAT(registrar_, name)
-
-#define FV1_INSTRUCTIONS_BEGIN()                                              \
-  /*static*/ std::array<InstructionDecoder::TableEntry, kOpcodeMax>           \
-      InstructionDecoder::instruction_table_;                                 \
-  /*static*/ std::array<InstructionDecoder::TableEntry, kNumSecondaryOpcodes> \
-      InstructionDecoder::secondary_table_;
-
-#define FV1_INSTRUCTIONS_END()
 
 }  // namespace fv1
 

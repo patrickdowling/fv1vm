@@ -13,19 +13,28 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #include "fv1_asm_decode.h"
 
 #include <algorithm>
 #include <type_traits>
 
+#include "core/core_templates.h"
+
+#define FV1_INSTRUCTION(name, bitfields, ...)                                          \
+  struct name : public InstructionImpl<name, __VA_ARGS__> {                            \
+    static constexpr OPCODE kOpcode = OPCODE::name;                                    \
+    static constexpr std::string_view STRING = bitfields;                              \
+    static_assert(STRING.size() == 32);                                                \
+    static constexpr OpcodeMatcher kOpcodeMatcher = OpcodeMatcher::FromString<name>(); \
+    static_assert((kOpcodeMatcher.mask & 0x1f) == 0x1f);                               \
+  }
+
 namespace fv1 {
 
-// TODO Make InstructionDecoder::instruction_table_, secondary_table_ constexpr?
 // TODO Can we pack min/max value here? It's rarely actually needed
 // TODO Inconsistency in I16: In one case we want a integer (WLDR), the other a real (CHO_SOF)
-
 // clang-format off
-FV1_INSTRUCTIONS_BEGIN()
 FV1_INSTRUCTION(RDA,  "CCCCCCCCCCCAAAAAAAAAAAAAAAA00000", ADDR<'A'>, REAL<S1F9, 'C'>);
 FV1_INSTRUCTION(RMPA, "CCCCCCCCCCC000000000001100000001", REAL<S1F9, 'C'>);
 FV1_INSTRUCTION(WRA,  "CCCCCCCCCCCAAAAAAAAAAAAAAAA00010", ADDR<'A'>, REAL<S1F9, 'C'>);
@@ -50,28 +59,61 @@ FV1_INSTRUCTION(JAM,  "0000000000000000000000001N010011", INT<'N', 1>);
 FV1_INSTRUCTION(CHO_RDA,  "00CCCCCC0NNAAAAAAAAAAAAAAAA10100", INT<'N', 2>, INT<'C', 6>, ADDR<'A'>);
 FV1_INSTRUCTION(CHO_SOF,  "10CCCCCC0NNDDDDDDDDDDDDDDDD10100", INT<'N', 2>, INT<'C', 6>, REAL<I16, 'D'>);
 FV1_INSTRUCTION(CHO_RDAL, "11CCCCCC0NN000000000000000010100", INT<'N', 2>, INT<'C', 6>); // see notes
-FV1_INSTRUCTIONS_END()
 // clang-format on
 //
 // NOTE CHO_RDAL is includes flags which is somewhat glossed over in asm manual
 //      We really only need the COS flag?
 //      See https://github.com/ndf-zz/asfv1#cho-rdal-lfo--flags
 
-/*static*/ void InstructionDecoder::Register(const OpcodeMatcher &matcher, DecoderFunction fn)
+// The "plain" opcodes are stored at the beginning of the table for immediate lookup in slots
+// [0, kOpcodeMax). Any ones that need disambiguation are stored at the the end and searched
+// (linearly). So the general case is simple, and there are fewer rare cases so it doesn't seem
+// like a problem.
+using DecoderFunction = DecodedInstruction (*)(uint32_t);
+static constexpr uint32_t table_index(uint32_t value)
 {
-  // printf("** mask=%08x pattern=%08x p=%08x s=%08x ", matcher.mask, matcher.pattern,
-  // matcher.primary(), matcher.secondary());
-  if (matcher.secondary()) {
-    auto table_entry = std::find_if_not(secondary_table_.begin(), secondary_table_.end(),
-                                        [](const TableEntry &te) { return te.decoder_fn; });
-    table_entry->matcher = matcher;
-    table_entry->decoder_fn = fn;
-  } else {
-    auto &table_entry = instruction_table_[table_index(matcher.pattern)];
-    table_entry.matcher = matcher;
-    table_entry.decoder_fn = fn;
-  }
+  return value & 0x1fU;
 }
+
+struct TableEntry {
+  OpcodeMatcher matcher = {};
+  DecoderFunction decoder_fn = nullptr;
+};
+
+// This is a bit wasteful (there are 21-ish operands, not 0x1f) but in case of unknown operands, we
+// end up with a null decoding function.
+using InstructionTable = std::array<TableEntry, kOpcodeMax + kNumSecondaryOpcodes>;
+
+template <typename Instruction>
+constexpr void RegisterInstruction(InstructionTable &table)
+{
+  constexpr auto matcher = Instruction::kOpcodeMatcher;
+  static_assert(matcher.primary() < kOpcodeMax);
+  size_t slot = 0;
+  if constexpr (!matcher.secondary()) {
+    slot = matcher.primary();
+  } else {
+    slot = kOpcodeMax;
+    while (table[slot].decoder_fn) ++slot;
+  }
+
+  table[slot].matcher = matcher;
+  table[slot].decoder_fn = Instruction::Decode;
+}
+
+template <typename... Instructions>
+static constexpr InstructionTable BuildInstructionTable()
+{
+  static_assert(core::are_distinct_types<Instructions...>::value);
+
+  InstructionTable instruction_table;
+  (RegisterInstruction<Instructions>(instruction_table), ...);
+  return instruction_table;
+}
+
+static constexpr InstructionTable instruction_table_ =
+    BuildInstructionTable<RDA, RMPA, WRA, WRAP, RDAX, RDFX, WRAX, WRHX, WRLX, MAXX, MULX, LOG, EXP,
+                          SOF, AND, OR, XOR, SKP, WLDS, WLDR, JAM, CHO_RDA, CHO_SOF, CHO_RDAL>();
 
 /*static*/ DecodedInstruction InstructionDecoder::Decode(uint32_t instruction)
 {
@@ -82,9 +124,9 @@ FV1_INSTRUCTIONS_END()
     decoder_fn = table_entry.decoder_fn;
   } else {
     auto ste =
-        std::find_if(secondary_table_.begin(), secondary_table_.end(),
+        std::find_if(instruction_table_.begin() + kOpcodeMax, instruction_table_.end(),
                      [instruction](const TableEntry &te) { return te.matcher.match(instruction); });
-    if (secondary_table_.end() != ste) decoder_fn = ste->decoder_fn;
+    if (instruction_table_.end() != ste) decoder_fn = ste->decoder_fn;
   }
 
   if (decoder_fn) {

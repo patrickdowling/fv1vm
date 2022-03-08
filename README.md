@@ -35,9 +35,11 @@ It's perhaps not strictly necessary and can be mostly avoided (e.g. until regist
 - Some disambiguation takes place during decoding for instructions that share an opcode, but different fields (`CHO RDA` or `CHO SOF`).
 - Optimization (e.g. turning a `SKP` into a `JMP`) is handled later by the VM since it can also re-pack the operands, or generate artificial specific opcodes.
 - The basic idea is also to try and fail at _compile time_ through static assertions, rather than runtime.
+- The actual decoding itself uses a lookup table to match instruction/opcode to a decoding function which unpacks all the fields. This table is generated at *compile time* now.
 
 While the code looks fairly complex and there's a lot of boilerplate, the combination of templates + `constexpr` produces the desired outcome and everything "collapses" at runtime.
 E.g. `Instruction::DecodeOperand` (which builds the code to extract a field from a string, the char id, and a type) boils down to basically `ubfx` (there's probably still some room for improvement by makeing the shifts & ands more idiomatic).
+
 
 ## Testing
 - Yeah, unit tests are pretty thin still.
@@ -54,4 +56,3 @@ E.g. `Instruction::DecodeOperand` (which builds the code to extract a field from
 ## Random Notes
 - Sure, an F7 or H7 would be faster and has more memory. But where's the fun in that?
 - A different approach would be to disassemble the FV-1 opcodes and generate C++ (or, just ARM assembler). That's "on the list" but the original goal was just to use existing banks.
-- The instruction decoder table can, with some effort, but made constexpr so the `Register` functions "go away".
