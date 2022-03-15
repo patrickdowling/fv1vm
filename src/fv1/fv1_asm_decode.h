@@ -39,6 +39,7 @@
 // NOTE ARM has extra instructions to extract bits from registers
 
 namespace fv1 {
+namespace detail {
 
 struct BitField {
   const size_t width;  // Number of bits
@@ -154,21 +155,7 @@ struct InstructionImpl {
   }
 };
 
-// Main entry point for decoding instructions using a table to lookup the decoding function for the
-// instruction opcode; Adds a whole bunch of hoops for the WLDR/WLDS and CHO_* that share an opcode,
-// but have different operand layouts. These are identifiable by the top two bits which we can use
-// as a secondary index.
-//
-// With some additional hoops the actual lookup table becomes constexpr. The downside is that we
-// have to list the instructions twice. We can _maybe_ get around that but passing any type of
-// string as a template parameter is hard/weird.
-//
-// The actual table implementation details aren't really needed here so they are in the .cc file.
-class InstructionDecoder {
-public:
-  static DecodedInstruction Decode(uint32_t instruction);
-};
-
+}  // namespace detail
 }  // namespace fv1
 
 #endif  // FV1_ASM_DECODE_H_

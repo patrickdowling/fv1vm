@@ -31,6 +31,7 @@
   }
 
 namespace fv1 {
+namespace detail {
 
 // TODO Can we pack min/max value here? It's rarely actually needed
 // TODO Inconsistency in I16: In one case we want a integer (WLDR), the other a real (CHO_SOF)
@@ -115,17 +116,29 @@ static constexpr InstructionTable instruction_table_ =
     BuildInstructionTable<RDA, RMPA, WRA, WRAP, RDAX, RDFX, WRAX, WRHX, WRLX, MAXX, MULX, LOG, EXP,
                           SOF, AND, OR, XOR, SKP, WLDS, WLDR, JAM, CHO_RDA, CHO_SOF, CHO_RDAL>();
 
+}  // namespace detail
+
+// Main entry point for decoding instructions using a table to lookup the decoding function for the
+// instruction opcode; Adds a whole bunch of hoops for the WLDR/WLDS and CHO_* that share an opcode,
+// but have different operand layouts. These are identifiable by the top two bits which we can use
+// as a secondary index.
+//
+// With some additional hoops the actual lookup table becomes constexpr. The downside is that we
+// have to list the instructions twice. We can _maybe_ get around that but passing any type of
+// string as a template parameter is hard/weird.
 /*static*/ DecodedInstruction InstructionDecoder::Decode(uint32_t instruction)
 {
-  DecoderFunction decoder_fn = nullptr;
+  detail::DecoderFunction decoder_fn = nullptr;
 
-  const auto &table_entry = instruction_table_[table_index(instruction)];
+  using detail::instruction_table_;
+
+  const auto &table_entry = instruction_table_[detail::table_index(instruction)];
   if (!table_entry.matcher.has_secondary() || table_entry.matcher.match(instruction)) {
     decoder_fn = table_entry.decoder_fn;
   } else {
     auto ste =
         std::find_if(instruction_table_.begin() + kOpcodeMax, instruction_table_.end(),
-                     [instruction](const TableEntry &te) { return te.matcher.match(instruction); });
+                     [instruction](const detail::TableEntry &te) { return te.matcher.match(instruction); });
     if (instruction_table_.end() != ste) decoder_fn = ste->decoder_fn;
   }
 

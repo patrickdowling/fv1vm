@@ -18,7 +18,7 @@
 #error "Don't include or compile this file directly"
 #endif
 
-#include "fv1/fv1_asm_decode.h"
+#include "fv1/fv1_instruction.h"
 #include "misc/program_stream.h"
 
 // Some ideas

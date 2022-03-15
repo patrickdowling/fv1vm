@@ -17,7 +17,7 @@
 #include <gtest/gtest.h>
 
 #include "fv1/debug/fv1_debug.h"
-#include "fv1/fv1_asm_decode.h"
+#include "fv1/fv1_instruction.h"
 
 namespace testfv1 {
 

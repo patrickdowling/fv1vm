@@ -23,16 +23,6 @@
 
 namespace fv1 {
 
-constexpr OPCODE instruction_opcode(uint32_t instruction)
-{
-  return static_cast<OPCODE>(instruction & 0x1f);
-}
-
-constexpr uint32_t instruction_operands(uint32_t instruction)
-{
-  return instruction & ~0x1fU;
-}
-
 static constexpr core::TypeTag kNoneTag = "NONE"_TT;
 static constexpr core::TypeTag kValueTag = "VAL"_TT;
 static constexpr core::TypeTag kMaskTag = "MASK"_TT;
@@ -89,6 +79,7 @@ struct TypedOperand {
   bool operator!() const { return !value; }
 };
 
+// Actual decoded instruction
 struct DecodedInstruction {
   using Operands = std::array<TypedOperand, kMaxOperands>;
 
@@ -98,6 +89,14 @@ struct DecodedInstruction {
   const size_t num_operands = 0;
 
   constexpr OPCODE opcode() const { return opcode_; }
+};
+
+// Main entry point to decode instructions from binary files.
+//
+// The actual implementation details aren't really needed here, so \sa fv1_asm_decode.cc
+class InstructionDecoder {
+public:
+  static DecodedInstruction Decode(uint32_t instruction);
 };
 
 }  // namespace fv1

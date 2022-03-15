@@ -20,7 +20,7 @@
 
 namespace testfv1 {
 
-using fv1::BitField;
+using fv1::detail::BitField;
 
 struct BBBB {
   static constexpr std::string_view STRING = "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB";

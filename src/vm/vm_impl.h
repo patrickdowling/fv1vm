@@ -19,7 +19,7 @@
 #endif
 
 #include "fv1/debug/fv1_debug.h"
-#include "fv1/fv1_asm_decode.h"
+#include "fv1/fv1_instruction.h"
 #include "misc/program_stream.h"
 
 #define GET_CONSTANT(type, name, index) \
