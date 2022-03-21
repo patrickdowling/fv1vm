@@ -36,13 +36,13 @@ static_assert(kDelayAddrMask == kDelayMemorySize - 1);
 using BinaryProgramBuffer = std::array<char, sizeof(uint32_t) * kMaxInstructionCount>;
 static_assert(512 == sizeof(BinaryProgramBuffer));
 
-FIXED_POINT_TYPE(S4F6, "S4F6"_TTU, 11, 6);
-FIXED_POINT_TYPE(SF10, "SF10"_TTU, 11, 10);
-FIXED_POINT_TYPE(S1F9, "S1F9"_TTU, 11, 9);
-FIXED_POINT_TYPE(S1F14, "S114"_TTU, 16, 14);
-FIXED_POINT_TYPE(I16, "I16"_TTU, 16, 15);
-FIXED_POINT_TYPE(SF15, "SF15"_TTU, 16, 15);
-FIXED_POINT_TYPE(SF23, "SF23"_TTU, 24, 23);
+FIXED_POINT_TYPE(S4F6, 11, 6);
+FIXED_POINT_TYPE(SF10, 11, 10);
+FIXED_POINT_TYPE(S1F9, 11, 9);
+FIXED_POINT_TYPE_S(S1F14, "S114", 16, 14);
+FIXED_POINT_TYPE(I16,  16, 15);
+FIXED_POINT_TYPE(SF15, 16, 15);
+FIXED_POINT_TYPE(SF23, 24, 23);
 
 }  // namespace fv1
 
