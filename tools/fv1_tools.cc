@@ -35,18 +35,6 @@ void logga(FILE *f, const char *fmt, ...)
   fprintf(f, "%s\n", buffer);
 }
 
-char *trim_str(char *str)
-{
-  auto c = str + fv1::kStrLen;
-  while (c-- > str) {
-    if (isspace(*c))
-      *c = '\0';
-    else
-      break;
-  }
-  return str;
-}
-
 void print_program_info(const fv1::BankInfo *bank_info, int program_index)
 {
   if (bank_info) {

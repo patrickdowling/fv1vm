@@ -135,8 +135,9 @@ struct OpcodeMatcher {
 };
 
 // The structs aren't _really_ meant to be instantiated.
-template <typename T, typename... operand_types>
+template <typename T, OPCODE opcode, typename... operand_types>
 struct InstructionImpl {
+  static constexpr OPCODE kOpcode = opcode;
   static constexpr size_t kNumOperands = sizeof...(operand_types);
   static_assert(kNumOperands <= 4);
 
@@ -151,7 +152,7 @@ struct InstructionImpl {
 
   static constexpr DecodedInstruction Decode(uint32_t instruction)
   {
-    return {T::kOpcode, instruction, {DecodeOperand<operand_types>(instruction)...}, kNumOperands};
+    return {kOpcode, instruction, {DecodeOperand<operand_types>(instruction)...}, kNumOperands};
   }
 };
 

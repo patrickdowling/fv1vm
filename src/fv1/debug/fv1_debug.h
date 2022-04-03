@@ -44,4 +44,4 @@ void print_decoded_instruction(int ic, const DecodedInstruction &di, bool print_
 }  // namespace debug
 }  // namespace fv1
 
-#endif // FV1_DEBUG_H_
+#endif  // FV1_DEBUG_H_

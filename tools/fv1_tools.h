@@ -35,7 +35,6 @@
 namespace fv1tools {
 
 void logga(FILE *f, const char *fmt, ...) __attribute__((format(printf, 2, 3)));
-char *trim_str(char *str);
 void print_program_info(const fv1::BankInfo *bank_info, int program_index);
 void print_bank_type(size_t s);
 
@@ -72,4 +71,4 @@ private:
 
 }  // namespace fv1tools
 
-#endif // FV1_TOOLS_H_
+#endif  // FV1_TOOLS_H_

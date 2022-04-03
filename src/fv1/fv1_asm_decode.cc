@@ -22,8 +22,7 @@
 #include "core/core_templates.h"
 
 #define FV1_INSTRUCTION(name, bitfields, ...)                                          \
-  struct name : public InstructionImpl<name, __VA_ARGS__> {                            \
-    static constexpr OPCODE kOpcode = OPCODE::name;                                    \
+  struct name : public InstructionImpl<name, OPCODE::name, __VA_ARGS__> {              \
     static constexpr std::string_view STRING = bitfields;                              \
     static_assert(STRING.size() == 32);                                                \
     static constexpr OpcodeMatcher kOpcodeMatcher = OpcodeMatcher::FromString<name>(); \
@@ -136,9 +135,9 @@ static constexpr InstructionTable instruction_table_ =
   if (!table_entry.matcher.has_secondary() || table_entry.matcher.match(instruction)) {
     decoder_fn = table_entry.decoder_fn;
   } else {
-    auto ste =
-        std::find_if(instruction_table_.begin() + kOpcodeMax, instruction_table_.end(),
-                     [instruction](const detail::TableEntry &te) { return te.matcher.match(instruction); });
+    auto ste = std::find_if(
+        instruction_table_.begin() + kOpcodeMax, instruction_table_.end(),
+        [instruction](const detail::TableEntry &te) { return te.matcher.match(instruction); });
     if (instruction_table_.end() != ste) decoder_fn = ste->decoder_fn;
   }
 

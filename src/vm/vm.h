@@ -149,7 +149,9 @@ private:
 };
 }  // namespace fv1
 
+// clang-format off
 #include "vm_impl.h"
 #include "vm_execute_v1.h"
+// clang-format on
 
-#endif // FV1_VM_H_
+#endif  // FV1_VM_H_

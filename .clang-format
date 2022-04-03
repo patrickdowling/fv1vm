@@ -1,0 +1,18 @@
+BasedOnStyle: google
+IndentWidth: 2
+ColumnLimit: 100
+Standard: c++17
+AccessModifierOffset: -2
+
+AllowShortBlocksOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: true
+
+AlwaysBreakTemplateDeclarations: true
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterFunction: true
+  SplitEmptyRecord: false
+

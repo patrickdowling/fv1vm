@@ -46,4 +46,4 @@ static constexpr size_t kDervishBankSize = 8 * 512 + sizeof(BankInfo);
 
 }  // namespace fv1
 
-#endif // FV1_BANK_H_
+#endif  // FV1_BANK_H_

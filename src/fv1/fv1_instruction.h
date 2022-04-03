@@ -54,7 +54,8 @@ struct TypedOperand {
 
   template <typename FP,
             std::enable_if_t<std::is_base_of<core::FixedPointType, FP>::value, bool> = true>
-  constexpr explicit TypedOperand(FP v) : type{FP::TAG}, value{core::FixedPointConvert<SF23>(v).value}
+  constexpr explicit TypedOperand(FP v)
+      : type{FP::TAG}, value{core::FixedPointConvert<SF23>(v).value}
   {}
 
   constexpr bool is_none() const { return kNoneTag == type; }

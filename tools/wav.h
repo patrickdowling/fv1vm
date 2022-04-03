@@ -77,4 +77,4 @@ private:
 
 }  // namespace wav
 
-#endif // TOOLS_WAV_H_
+#endif  // TOOLS_WAV_H_

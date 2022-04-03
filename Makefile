@@ -120,7 +120,6 @@ CPPCHECK ?= cppcheck
 CPPCHECK_FLAGS += --enable=all
 CPPCHECK_FLAGS += -inconclusives
 CPPCHECK_FLAGS += --std=$(CPPSTD)
-CPPCHECK_FLAGS += --quiet
 CPPCHECK_FLAGS += --suppress=missingIncludeSystem
 CPPCHECK_FLAGS += --error-exitcode=1
 ifdef VERBOSE
@@ -136,6 +135,17 @@ CPPCHECK_INCLUDES = ./src
 .PHONY: check
 check:
 	$(Q)$(CPPCHECK) $(CPPCHECK_SRC_DIRS) $(addprefix -I,$(CPPCHECK_INCLUDES)) $(CPPCHECK_FLAGS)
+
+# clang-format
+CLANG_FORMAT_OPTS = -i --style=file
+ifdef VERBOSE
+	CLANG_FORMAT_OPTS += --verbose
+endif
+CLANG_FORMAT_DIRS = ./src ./tools ./test
+.PHONY: format
+format:
+	$(Q)clang-format $(CLANG_FORMAT_OPTS) \
+		$(foreach dir,$(CLANG_FORMAT_DIRS),$(shell find $(dir) -name \*.cc -o -name \*.h))
 
 # WAV generation in external script
 WAV_DIR = $(BUILD_DIR)/wav

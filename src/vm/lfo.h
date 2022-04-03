@@ -48,4 +48,4 @@ protected:
 
 }  // namespace fv1
 
-#endif // FV1_LFO_H_
+#endif  // FV1_LFO_H_

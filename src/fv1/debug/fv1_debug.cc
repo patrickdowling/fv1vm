@@ -109,7 +109,7 @@ FlagString to_string(CHO_FLAGS cho_flags)
   if (CHO_FLAGS::COMPC & cho_flags) s += sprintf(s, "COMPC ");
   if (CHO_FLAGS::COMPA & cho_flags) s += sprintf(s, "COMPA ");
   if (CHO_FLAGS::RPTR2 & cho_flags) s += sprintf(s, "RPTR2 ");
-  if (CHO_FLAGS::NA & cho_flags) s += sprintf(s, "NA ");
+  if (CHO_FLAGS::NA & cho_flags) sprintf(s, "NA ");
   return flag_string;
 }
 

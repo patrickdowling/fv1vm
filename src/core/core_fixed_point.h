@@ -25,13 +25,16 @@
 
 namespace core {
 
-// NOTE cppcheck didn't like this use of ## here.
+// NOTE cppcheck didn't like this use of ## here (string + literal)
 // I've fixed the issue in simplecpp which should eventually make its way into an official cppcheck
+// NOTE The extra ' ' in '> >' is intentional since that's another cppcheck weirdness
+// clang-format off
 #define FP_TYPE_TAG(x, y) x##y
 #define FIXED_POINT_TYPE(x, bits, frac) \
-  using x = core::FixedPoint<core::FixedPointTraits<FP_TYPE_TAG(#x, _TTU), bits, frac>>
+  using x = core::FixedPoint<core::FixedPointTraits<FP_TYPE_TAG(#x, _TTU), bits, frac> >
 #define FIXED_POINT_TYPE_S(x, s, bits, frac) \
-  using x = core::FixedPoint<core::FixedPointTraits<FP_TYPE_TAG(s, _TTU), bits, frac>>
+  using x = core::FixedPoint<core::FixedPointTraits<FP_TYPE_TAG(s, _TTU), bits, frac> >
+// clang-format on
 
 // Common ancestor for fixed point implementations (e.g. for enable_if matching)
 // NOTE putting ::value in here seems logical enough, but apparenty slower?

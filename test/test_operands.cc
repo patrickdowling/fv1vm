@@ -72,4 +72,3 @@ TEST(TestOperand, NotFixedPoint)
 }
 
 }  // namespace testfv1
-
